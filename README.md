@@ -172,6 +172,55 @@ describe('deepClone', () => {
 
 运行`yarn test`输出
 
+![测试函数](https://github.com/pppcode/React/blob/master/images/测试函数.jpg)
+
+测试成功！
+
+3. 开发
+
+**基本类型的拷贝**
+
+编写测试用例
+
+```
+it('能够复制基本类型', () => {
+    const n = 123;
+    const n2 = deepClone(n);
+    assert(n === n2)
+    const s = '123456'
+    const s2 = deepClone(s)
+    assert(s === s2)
+    const b = true
+    const b2 = deepClone(b)
+    assert(b === b2)
+    const u = undefined
+    const u2 = deepClone(u)
+    assert(u === u2)
+    const e = null
+    const e2 = deepClone(e)
+    assert(e === e2)
+    const sym = Symbol()
+    const sym2 = deepClone(sym)
+    assert(sym === sym2)
+  })
+```
+
+deepClone()
+
+```
+function deepClone(source) {
+  return source
+}
+module.exports = deepClone
+
+```
+
+运行`yarn test`
+
+![测试复制基本类型](https://github.com/pppcode/React/blob/master/images/测试复制基本类型.jpg)
+
+
+
 
 
 
