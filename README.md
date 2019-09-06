@@ -262,6 +262,87 @@ module.exports = deepClone
 
 **数组**
 
+测试用例：断言数组不相等，普通类型相等
+
+```
+    it('能够复制数组对象', () => {
+      const a = [[11,12], [21,22], [31,32]]
+      const a2 = deepClone(a)
+      assert(a !== a2)
+      assert(a[0] !== a2[0])
+      assert(a[1] !== a2[1])
+      assert(a[2] !== a2[2])
+      assert.deepEqual(a, a2) //a 里面的每一项对比 a2 里面的每一项，不对比引用，只对比里面的值
+    })
+```
+
+实现`deepClone`
+
+虽然数组也是对象，但若不单独处理，就会报错
+
+```
+function deepClone(source) {
+  if (source instanceof Object) {
+    if (source instanceof Array) {
+      const dist = new Array()
+      for (let key in source) {
+        dist[key] = deepClone(source[key])
+      }
+      return dist
+    } else {
+      //...
+    }
+  }
+  return source
+}
+```
+
+测试
+
+![复制数组](https://github.com/pppcode/Deep-clone/blob/master/images/复制数组.jpg)
+
+**函数**
+
+测试用例：断言 a 和 a2 有相同的功能,属性
+
+```
+    it('能够复制函数', () => {
+      const a = function(x, y) {
+        return x + y
+      }
+      a.xxx = {yyy: {zzz: 1}}
+      const a2 = deepClone(a) 
+      assert(a !== a2) //断言属性
+      assert(a.xxx.yyy.zzz === a2.xxx.yyy.zzz)
+      assert(a.xxx.yyy !== a2.xxx.yyy)
+      assert(a.xxx !== a2.xxx)
+      assert(a(1, 2) === a2(1, 2)) //断言功能，执行结果相同
+    })
+```
+
+实现`deepClone`，难点怎么拷贝函数的参数和函数体呢
+
+```
+else if (source instanceof Function) {
+      const dist = function () { //拷贝参数和函数体
+        return source.apply(this, arguments)
+      }
+      for (let key in source) { //拷贝属性
+        dist[key] = deepClone(source[key])
+      }
+      return dist
+    }
+```
+
+测试通过
+
+![复制函数](https://github.com/pppcode/Deep-clone/blob/master/images/复制函数.jpg)
+
+
+
+
+
+
 
 
 
