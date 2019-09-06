@@ -172,7 +172,7 @@ describe('deepClone', () => {
 
 运行`yarn test`输出
 
-![测试函数](https://github.com/pppcode/React/blob/master/images/测试函数.jpg)
+![测试函数](https://github.com/pppcode/Deep-clone/blob/master/images/测试函数.jpg)
 
 测试成功！
 
@@ -205,7 +205,7 @@ it('能够复制基本类型', () => {
   })
 ```
 
-deepClone()
+调用`deepClone`传递参数时，进行了一份复制，所以`deepClone`直接`return`出来就行
 
 ```
 function deepClone(source) {
@@ -217,13 +217,50 @@ module.exports = deepClone
 
 运行`yarn test`
 
-![测试复制基本类型](https://github.com/pppcode/React/blob/master/images/测试复制基本类型.jpg)
+![测试复制基本类型](https://github.com/pppcode/Deep-clone/blob/master/images/测试复制基本类型.jpg)
 
+**引用类型的拷贝**
 
+**普通对象**
 
+编写测试用例：断言引用类型时，是不相等的，基本类型是相等的
 
+```
+  describe('对象', () => {
+    it('能够复制普通对象', () => {
+      const a = {name: 'zhangsan', child: {name: 'xiaozhangsan'}}
+      const a2 = deepClone(a)
+      assert(a !== a2)
+      assert(a.name === a2.name)
+      assert(a.child !== a2.child)
+      assert(a.child.name === a2.child.name)
+    })
+  })
+```
 
+实现`deepClone`
 
+如果是对象，遍历每一个属性，进行 clone
+
+```
+function deepClone(source) {
+  if(source instanceof Object) {
+    const dist = new Object()
+    for (let key in source) {
+      dist[key] = deepClone(source[key])
+    }
+    return dist
+  }
+  return source
+}
+module.exports = deepClone
+```
+
+测试
+
+![测试普通对象](https://github.com/pppcode/Deep-clone/blob/master/images/测试普通对象.jpg)
+
+**数组**
 
 
 
