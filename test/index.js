@@ -60,5 +60,13 @@ describe('deepClone', () => {
       assert(a.xxx !== a2.xxx)
       assert(a(1, 2) === a2(1, 2)) //断言功能，执行结果相同
     })
+    it('环也能复制', () => {
+      const a = {name: 'zhangsan'}
+      a.self = a //构造环引用：先解析到之后，再赋值，所以不能 {name: 'zhangsan', self:a} 这样写，否则解析时是 undefined
+      const a2 = deepClone(a)
+      assert(a !== a2)
+      assert(a.name === a2.name)
+      assert(a.self !== a2.self)
+    })
   })
 })

@@ -170,11 +170,9 @@ describe('deepClone', () => {
 })
 ```
 
-运行`yarn test`输出
+运行`yarn test`，测试通过
 
-![测试函数](https://github.com/pppcode/Deep-clone/blob/master/images/测试函数.jpg)
-
-测试成功！
+![测试函数](https://github.com/pppcode/Deep-clone/blob/master/images/测试函数.png)
 
 3. 开发
 
@@ -256,7 +254,7 @@ function deepClone(source) {
 module.exports = deepClone
 ```
 
-测试
+测试通过
 
 ![测试普通对象](https://github.com/pppcode/Deep-clone/blob/master/images/测试普通对象.jpg)
 
@@ -297,7 +295,7 @@ function deepClone(source) {
 }
 ```
 
-测试
+测试通过
 
 ![复制数组](https://github.com/pppcode/Deep-clone/blob/master/images/复制数组.jpg)
 
@@ -337,6 +335,48 @@ else if (source instanceof Function) {
 测试通过
 
 ![复制函数](https://github.com/pppcode/Deep-clone/blob/master/images/复制函数.jpg)
+
+完整代码
+
+https://github.com/pppcode/Deep-clone/blob/96b9708bc87e88b2b4d09fbf2a3912bd47f9bda2/src/index.js
+
+以上拷贝有一些缺点
+
+用到了递归，递归必须有一个结束的条件，这些对象的拷贝，但是并没有报错，因为以上拷贝的对象都是有结尾的,递归到末尾时自动停止了，但若是对象有个环呢
+
+![环引用](https://github.com/pppcode/Deep-clone/blob/master/images/环引用.jpg)
+
+`window`就是这么个对象，`window.self === window //true`,`window.self.self === window //true`
+
+若深拷贝这个对象，`self`会一直递归下去
+
+举个🌰
+
+测试用例
+
+```
+    it('环也能复制', () => {
+      const a = {name: 'zhangsan'}
+      a.self = a //构造环引用：先解析到之后，再赋值，所以不能 {name: 'zhangsan', self:a} 这样写，否则解析时是 undefined
+      const a2 = deepClone(a)
+      assert(a !== a2)
+      assert(a.name === a2.name)
+      assert(a.self !== a2.self)
+    })
+```
+
+测试失败
+
+![测试环引用](https://github.com/pppcode/Deep-clone/blob/master/images/测试环引用.jpg)
+
+调用了一万多次`deepClone`，`deepClone`会一直去找所有的属性，而其中的`self`属性会一直往下找到同一个对象,反复调用`deepClone`
+
+如何解决呢
+
+先优化下代码
+
+
+
 
 
 
