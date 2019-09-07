@@ -536,7 +536,7 @@ it('自动跳过原型属性', () => {
 
 完整代码
 
-
+https://github.com/pppcode/Deep-clone/blob/master/src/index.js
 
 测试成功
 
