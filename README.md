@@ -495,10 +495,6 @@ else if(source instanceof Date) {
 
 ![测试日期](https://github.com/pppcode/Deep-clone/blob/master/images/测试日期.jpg)
 
-完整代码
-
-https://github.com/pppcode/Deep-clone/blob/96b9708bc87e88b2b4d09fbf2a3912bd47f9bda2/src/index.js
-
 通过以上代码可以看出，每个类型的构造方法都不太一样，所以需要写不同的逻辑
 
 要不要拷贝原型上的属性呢
@@ -534,15 +530,19 @@ it('自动跳过原型属性', () => {
 
 ![跳过原型属性](https://github.com/pppcode/Deep-clone/blob/master/images/跳过原型属性.jpg)
 
-继续测试
+以上代码中存在一个问题：`chche`会被全局共享，造成互相污染
 
-测试用例：包含了所有的属性
+`cache`没有清空，下次`deepClone`时会和上一次的互相影响，所以每次`deepClone`时只用一个`cache`（重新生成）,可以利用面向对象，`new`克隆对象时（自己有独立的`cache`），每次深拷贝时，先声明一个对象，再用这个对象的拷贝方法
 
-
-
-
+完整代码
 
 
+
+测试成功
+
+![cache问题](https://github.com/pppcode/Deep-clone/blob/master/images/cache问题.jpg)
+
+以上用原生 JS 实现了一个深拷贝，但和`Lodash.cloneDeep`第三方库相比的缺点是：4个类型之外的对象就拷贝不了了，比如`map`,`set`等类型的对象，每一种类型的判断都需要单独处理
 
 
 
