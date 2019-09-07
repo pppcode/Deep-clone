@@ -336,11 +336,7 @@ else if (source instanceof Function) {
 
 ![复制函数](https://github.com/pppcode/Deep-clone/blob/master/images/复制函数.jpg)
 
-完整代码
-
-https://github.com/pppcode/Deep-clone/blob/96b9708bc87e88b2b4d09fbf2a3912bd47f9bda2/src/index.js
-
-以上拷贝有一些缺点
+**以上拷贝有一些缺点**
 
 用到了递归，递归必须有一个结束的条件，这些对象的拷贝，但是并没有报错，因为以上拷贝的对象都是有结尾的,递归到末尾时自动停止了，但若是对象有个环呢
 
@@ -373,7 +369,139 @@ https://github.com/pppcode/Deep-clone/blob/96b9708bc87e88b2b4d09fbf2a3912bd47f9b
 
 如何解决呢
 
-先优化下代码
+如果第一次出现过，第二次再出现时不克隆,通过缓存实现
+
+```
+let cache = []
+function deepClone(source) {
+  if(source instanceof Object) {
+    let cacheDist = findCache(source)
+    if(cacheDist) { //有缓存
+      return cacheDist
+    }else { //没缓存
+      let dist 
+      if(source instanceof Array) {
+        dist = new Array()
+      }else if(source instanceof Function) {
+        dist = function() {
+          return source.apply(this, arguments)
+        }
+      }else {
+        dist = new Object()
+      }
+      cache.push([source, dist]) //先把 dist 放到里面
+      for(let key in source) {
+        dist[key] = deepClone(source[key])
+      }
+      return dist
+    }
+  }
+  return source
+}
+
+function findCache(source) { 
+  for(let i=0; i<cache.length; i++) {
+    if(cache[i][0] === source) { //对比 source return dist
+      return cache[i][1]
+    }
+  }
+  return undefined
+}
+
+module.exports = deepClone
+```
+
+测试成功
+
+![测试环引用成功](https://github.com/pppcode/Deep-clone/blob/master/images/测试环引用成功.jpg)
+
+假设对象的层级很深呢，通过检测环是不行的(递归xx次，递归会调用栈，若是栈的长度低于xx，就会爆栈,chrome堆栈大概是12000左右)
+
+测试用例：创造'有两万个属性的对象'
+
+```
+    it('不会爆栈', () => {
+      const a = {child: null}
+      const b = a
+      for(let i=0; i<20000; i++) {
+        b.child = {
+          child: null
+        }
+        b = b.child
+      }
+      const a2 = deepClone(a)
+      assert(a !== a2)
+      assert(a.child !== a2.child)
+    })
+```
+
+**可能会爆栈，对它的结构进行一个改造，用循环的方式放到一个数组里**
+
+**RegExp**
+
+测试用例
+
+```
+    it('可以复制正则表达式', () => {
+      const a = new RegExp('h1\\d+', 'gi')
+      a.xxx = {yyy: {zzz: 1}}
+      const a2 = deepClone(a)
+      assert(a.source === a2.source) //获取 'h1\\d+'
+      assert(a.flags === a2.flags) //获取 'gi'
+      assert(a !== a2)
+      assert(a.xxx.yyy.zzz === a2.xxx.yyy.zzz)
+      assert(a.xxx.yyy !== a2.xxx.yyy)
+      assert(a.xxx !== a2.xxx) 
+    })
+```
+
+实现`deepClone`
+
+```
+else if(source instanceof RegExp) {
+        dist = new RegExp(source.source, source.flags)
+      }
+```
+
+测试成功
+
+![测试正则表达式](https://github.com/pppcode/Deep-clone/blob/master/images/测试正则表达式.jpg)
+
+**Date**
+
+测试用例
+
+```
+    it('可以复制日期', () => {
+      const a = new Date()
+      a.xxx = {yyy: {zzz: 1}}
+      const a2 = deepClone(a)
+      assert(a.getTime() === a2.getTime()) //通过 getTime 判断拷贝后的值相等
+      assert(a.xxx.yyy.zzz === a2.xxx.yyy.zzz)
+      assert(a.xxx.yyy !== a2.xxx.yyy)
+      assert(a.xxx !== a2.xxx) 
+    })
+```
+
+实现`deepClone`
+
+```
+else if(source instanceof Date) {
+        dist = new Date(source) //拷贝后的也会有 getTime 方法，可以进行比较了
+      }
+```
+
+测试成功
+
+![测试日期](https://github.com/pppcode/Deep-clone/blob/master/images/测试日期.jpg)
+
+完整代码
+
+https://github.com/pppcode/Deep-clone/blob/96b9708bc87e88b2b4d09fbf2a3912bd47f9bda2/src/index.js
+
+通过以上代码可以看出，每个类型的构造方法都不太一样，所以需要写不同的逻辑
+
+一般来说，不拷贝原型属性，若拷贝的话，内存占用太多了
 
 
 
