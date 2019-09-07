@@ -501,7 +501,45 @@ https://github.com/pppcode/Deep-clone/blob/96b9708bc87e88b2b4d09fbf2a3912bd47f9b
 
 通过以上代码可以看出，每个类型的构造方法都不太一样，所以需要写不同的逻辑
 
+要不要拷贝原型上的属性呢
+
 一般来说，不拷贝原型属性，若拷贝的话，内存占用太多了
+
+测试用例
+
+```
+it('自动跳过原型属性', () => {
+      const a = Object.create({name: 'a'}) //原型上的属性
+      a.xxx = {yyy: {zzz: 1}}
+      const a2 = deepClone(a)
+      assert(a !== a2)
+      assert.isFalse('name' in a2) //a2 上没有 name 属性
+      assert(a.xxx.yyy.zzz === a2.xxx.yyy.zzz)
+      assert(a.xxx.yyy !== a2.xxx.yyy)
+      assert(a.xxx !== a2.xxx) 
+    })
+```
+
+实现`deepClone`，`for in`默认遍历原型上的属性，所以
+
+```
+      for(let key in source) {
+        if(source.hasOwnProperty(key)) {
+          dist[key] = deepClone(source[key])
+        }
+      }
+```
+
+测试成功
+
+![跳过原型属性](https://github.com/pppcode/Deep-clone/blob/master/images/跳过原型属性.jpg)
+
+继续测试
+
+测试用例：包含了所有的属性
+
+
+
 
 
 
